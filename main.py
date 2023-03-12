@@ -30,20 +30,23 @@ knight_walk = get_images_from_folder(os.path.join(os.path.join("graphics", "Knig
 knight_attack = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "attack"))
 knight_hurt = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "hurt"))
 knight_death = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "dead"))
-knight_jump = os.path.join(os.path.join("graphics", "KnightActions"), "jump.png")
+knight_jump = pygame.image.load(os.path.join(os.path.join("graphics", "KnightActions"), "jump.png")).convert_alpha()
 
 # clods y coordinates
-first_y, second_y, third_y = [randint(300, 450) for _ in range(3)]
+first_y, second_y, third_y = [randint(300, 400) for _ in range(3)]
 
 # clouds surfaces with rectangles
 cloud_1 = pygame.image.load(os.path.join("graphics", "cloud_1.png")).convert_alpha()
-cloud_1 = pygame.transform.scale(cloud_1, (cloud_1.get_width() * 3, cloud_1.get_height() * 3))
-cloud_1_rect = cloud_1.get_rect(midleft=(100, first_y)).inflate(-20, 0)
-cloud_3_rect = cloud_1.get_rect(midright=(SCREEN_WIDTH - 100, third_y)).inflate(-20, 0)
+cloud_1 = pygame.transform.scale(cloud_1, (cloud_1.get_width() * 4, cloud_1.get_height() * 4))
+cloud_1_rect = cloud_1.get_rect(midleft=(100, first_y))
+cloud_1_rect = cloud_1_rect.inflate(-20, -(cloud_1_rect.height - 1))
+cloud_3_rect = cloud_1.get_rect(midright=(SCREEN_WIDTH - 100, third_y))
+cloud_3_rect = cloud_3_rect.inflate(-20, -(cloud_3_rect.height - 1))
 
 cloud_2 = pygame.image.load(os.path.join("graphics", "cloud_2.png")).convert_alpha()
-cloud_2 = pygame.transform.scale(cloud_2, (cloud_2.get_width() * 4.5, cloud_2.get_height() * 4.5))
+cloud_2 = pygame.transform.scale(cloud_2, (cloud_2.get_width() * 5, cloud_2.get_height() * 5))
 cloud_2_rect = cloud_2.get_rect(center=(SCREEN_WIDTH // 2, second_y))
+cloud_2_rect = cloud_2_rect.inflate(-20, -(cloud_2_rect.height - 1))
 
 clouds = [cloud_1_rect, cloud_2_rect, cloud_3_rect]
 
