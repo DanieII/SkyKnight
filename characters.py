@@ -1,5 +1,5 @@
 import pygame
-from pygame import sprite, Rect, key, transform
+from pygame import sprite, Rect, key, mouse, transform
 
 
 class Character(sprite.Sprite):
@@ -45,6 +45,8 @@ class Knight(Character):
         self.colliding = False
         self.going_right = True
         self.moved = False
+        self.attacking = False
+        self.attack_timer = 0
 
     @classmethod
     def create_knight(cls, cloud_coordinates: Rect, idle, walk, attack, hurt, death, jump: pygame.image, clouds: list):
@@ -73,6 +75,21 @@ class Knight(Character):
                 self.image = self.jump_image if self.going_right else transform.flip(self.jump_image, True, False)
             self.moved = True
 
+    def attack(self):
+        keys = key.get_pressed()
+
+        if keys[pygame.K_f] or mouse.get_pressed()[0] and self.attack_timer == 0:
+            self.attack_timer = 60
+            self.attacking = True
+
+        if self.attacking:
+            self.image, self.attack_index = self.animation(self.going_right, self.attack_images, self.attack_index,
+                                                           0.15)
+            if self.attack_index + 0.15 >= len(self.attack_images):
+                self.attacking = False
+
+        if self.attack_timer > 0:
+            self.attack_timer -= 1
 
     def apply_gravity(self):
         self.gravity += self.GRAVITY_VELOCITY
@@ -91,7 +108,8 @@ class Knight(Character):
 
     def update(self):
         self.movement()
+        self.attack()
         self.apply_gravity()
-        if not self.moved:
+        if not self.moved and not self.attacking:
             self.image, self.idle_index = self.animation(self.going_right, self.idle_images, self.idle_index, 0.03)
         self.moved = False if self.colliding else True
