@@ -1,36 +1,7 @@
 import pygame
-from pygame import sprite, Rect, key, mouse, transform
+from pygame import Rect, key, mouse, transform
 
-
-class Character(sprite.Sprite):
-
-    def __init__(self, x: int, y: int, idle_images: list, walk_images: list, attack_images: list, hurt_images: list,
-                 death_images: list):
-        super().__init__()
-        self.x = x
-        self.y = y
-        self.idle_images = idle_images
-        self.walk_images = walk_images
-        self.attack_images = attack_images
-        self.hurt_images = hurt_images
-        self.death_images = death_images
-        self.image = idle_images[0]
-        self.rect: Rect = self.image.get_rect(midbottom=(x, y)).inflate(0, -4)
-        self.idle_index = 0
-        self.walk_index = 0
-        self.attack_index = 0
-        self.hurt_index = 0
-
-    @staticmethod
-    def animation(direction, images, index, speed=0.1):
-        index += speed
-        if index > len(images):
-            index = 0
-
-        if direction:
-            return images[int(index)], index
-
-        return transform.flip(images[int(index)], True, False), index
+from characters.character import Character
 
 
 class Knight(Character):
@@ -38,8 +9,10 @@ class Knight(Character):
     MOVEMENT_VELOCITY = 4
 
     def __init__(self, x, y, idle, walk, attack, hurt, death, jump, clouds: list):
-        super().__init__(x, y, idle, walk, attack, hurt, death)
+        super().__init__(x, y, idle, walk, attack, death)
+        self.rect: Rect = self.image.get_rect(midbottom=(x, y)).inflate(0, -4)
         self.jump_image = jump
+        self.hurt_images = hurt
         self.clouds = clouds
         self.gravity = 0
         self.colliding = False
@@ -52,6 +25,10 @@ class Knight(Character):
     def create_knight(cls, cloud_coordinates: Rect, idle, walk, attack, hurt, death, jump: pygame.image, clouds: list):
         x, y = cloud_coordinates.x + cloud_coordinates.width // 2, cloud_coordinates.top
         return cls(x, y, idle, walk, attack, hurt, death, jump, clouds)
+
+    @property
+    def coordinates(self):
+        return self.rect.x, self.rect.y
 
     def movement(self):
         keys = key.get_pressed()
@@ -78,7 +55,7 @@ class Knight(Character):
     def attack(self):
         keys = key.get_pressed()
 
-        if keys[pygame.K_f] or mouse.get_pressed()[0] and self.attack_timer == 0:
+        if (keys[pygame.K_f] or mouse.get_pressed()[0]) and self.attack_timer == 0:
             self.attack_timer = 60
             self.attacking = True
 

@@ -1,9 +1,10 @@
 import os
 import pygame
 from sys import exit
-from random import randint
+from random import randint, choice
 
-from characters import Knight
+from characters.knight import Knight
+from characters.vulture import Vulture
 
 pygame.init()
 
@@ -32,6 +33,13 @@ knight_hurt = get_images_from_folder(os.path.join(os.path.join("graphics", "Knig
 knight_death = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "dead"))
 knight_jump = pygame.image.load(os.path.join(os.path.join("graphics", "KnightActions"), "jump.png")).convert_alpha()
 
+vulture_idle = [pygame.image.load(os.path.join(os.path.join("graphics", "vulture"), "Vulture.png")).convert_alpha()]
+vulture_death = [
+    pygame.image.load(os.path.join(os.path.join("graphics", "vulture"), "Vulture_death.png")).convert_alpha()]
+vulture_move = [pygame.transform.smoothscale(x, (int(x.get_width() * 1.2), (x.get_height() * 1.2))) for x in
+                get_images_from_folder(os.path.join(os.path.join("graphics", "vulture"), "move"))]
+vulture_attack = get_images_from_folder(os.path.join(os.path.join("graphics", "vulture"), "attack"))
+
 # clods y coordinates
 first_y, second_y, third_y = [randint(300, 400) for _ in range(3)]
 
@@ -52,14 +60,25 @@ clouds = [cloud_1_rect, cloud_2_rect, cloud_3_rect]
 
 # groups
 player = pygame.sprite.GroupSingle()
-player.add(Knight.create_knight(cloud_1_rect, knight_idle, knight_walk, knight_attack, knight_hurt, knight_death,
-                                knight_jump, clouds))
+knight = Knight.create_knight(cloud_1_rect, knight_idle, knight_walk, knight_attack, knight_hurt, knight_death,
+                              knight_jump, clouds)
+player.add(knight)
+
+enemies = pygame.sprite.Group()
+
+spawn_timer = pygame.USEREVENT + 1
+pygame.time.set_timer(spawn_timer, 3000)
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+
+        if event.type == spawn_timer:
+            x, y = choice((-20, SCREEN_WIDTH + 20)), randint(0, SCREEN_HEIGHT // 2)
+            vulture = Vulture(x, y, vulture_idle, vulture_move, vulture_attack, vulture_death, knight)
+            enemies.add(vulture)
 
     screen.blit(city_surface, (0, 0))
     screen.blit(text_surface, (SCREEN_WIDTH // 2 - text_surface.get_width() // 2, 0))
@@ -70,6 +89,9 @@ while True:
 
     player.draw(screen)
     player.update()
+
+    enemies.draw(screen)
+    enemies.update()
 
     pygame.display.update()
     clock.tick(60)
