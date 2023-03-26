@@ -7,12 +7,18 @@ from characters.knight import Knight
 
 
 class Vulture(Character):
+    __score = 0
 
     def __init__(self, x, y, idle, walk, attack, death, knight: Knight):
         super().__init__(x, y, idle, walk, attack, death)
         self.rect: Rect = self.image.get_rect(midbottom=(x, y)).inflate(0, -20)
         self.going_right = True if x < 0 else False
         self.knight = knight
+        self.start_dying = False
+
+    @property
+    def get_score(self):
+        return Vulture.__score
 
     def move(self):
         player_x, player_y = self.knight.coordinates
@@ -39,6 +45,25 @@ class Vulture(Character):
     def animate_movement(self):
         self.image, self.walk_index = self.animation(self.going_right, self.walk_images, self.walk_index)
 
+    def after_collision(self):
+        if not self.start_dying:
+            if not self.knight.attacking:
+                self.knight.hurt()
+                self.kill()
+            else:
+                if len({self.going_right, self.knight.going_right}) == 1:
+                    Vulture.__score += 1
+                    self.die()
+
+    def die(self):
+        self.image, self.hurt_index = self.animation(self.going_right, self.death_images, self.hurt_index)
+        self.start_dying = True
+
     def update(self):
-        self.animate_movement()
-        self.move()
+        if self.start_dying:
+            self.image, self.hurt_index = self.animation(self.going_right, self.death_images, self.hurt_index, 0.05)
+            if self.hurt_index + 0.05 >= len(self.death_images):
+                self.kill()
+        else:
+            self.animate_movement()
+            self.move()

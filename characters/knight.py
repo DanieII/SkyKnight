@@ -19,6 +19,7 @@ class Knight(Character):
         self.going_right = True
         self.moved = False
         self.attacking = False
+        self.damaged = False
         self.attack_timer = 0
 
     @classmethod
@@ -83,10 +84,19 @@ class Knight(Character):
         else:
             self.colliding = False
 
+    def hurt(self):
+        self.image, self.hurt_index = self.animation(self.going_right, self.hurt_images, self.hurt_index)
+        self.damaged = True
+
     def update(self):
+        self.apply_gravity()
+        if self.damaged:
+            if self.hurt_index + 0.1 < len(self.hurt_images):
+                self.hurt()
+                return
+            self.damaged = False
         self.movement()
         self.attack()
-        self.apply_gravity()
         if not self.moved and not self.attacking:
             self.image, self.idle_index = self.animation(self.going_right, self.idle_images, self.idle_index, 0.03)
         self.moved = False if self.colliding else True

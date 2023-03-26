@@ -10,6 +10,7 @@ pygame.init()
 
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
+score = 0
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("SkyKnight")
 clock = pygame.time.Clock()
@@ -17,7 +18,6 @@ font = pygame.font.Font(os.path.join("font", "pixChicago.ttf"), 20)
 
 city_surface = pygame.image.load(os.path.join(os.path.join("graphics", "background"), "background.png")).convert()
 city_surface = pygame.transform.scale(city_surface, (SCREEN_WIDTH, SCREEN_HEIGHT))
-text_surface = font.render("Score", False, "Black")
 
 
 def get_images_from_folder(folder):
@@ -80,6 +80,7 @@ while True:
             vulture = Vulture(x, y, vulture_idle, vulture_move, vulture_attack, vulture_death, knight)
             enemies.add(vulture)
 
+    text_surface = font.render(f"Score: {score}", False, "Black")
     screen.blit(city_surface, (0, 0))
     screen.blit(text_surface, (SCREEN_WIDTH // 2 - text_surface.get_width() // 2, 0))
 
@@ -92,6 +93,11 @@ while True:
 
     enemies.draw(screen)
     enemies.update()
+
+    collided_with_knight = pygame.sprite.spritecollide(player.sprite, enemies, dokill=False)
+    [x.after_collision() for x in collided_with_knight]
+    if collided_with_knight:
+        score = collided_with_knight[0].get_score
 
     pygame.display.update()
     clock.tick(60)
