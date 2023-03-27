@@ -97,6 +97,6 @@ class Knight(Character):
             self.damaged = False
         self.movement()
         self.attack()
-        if not self.moved and not self.attacking:
+        if not self.moved and not self.attacking and self.colliding:
             self.image, self.idle_index = self.animation(self.going_right, self.idle_images, self.idle_index, 0.03)
         self.moved = False if self.colliding else True

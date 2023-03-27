@@ -23,6 +23,9 @@ class Vulture(Character):
     def move(self):
         player_x, player_y = self.knight.coordinates
 
+        dx = player_x - self.rect.x
+        dy = player_y - self.rect.y
+
         if self.rect.x < player_x:
             self.rect.x += 2
             self.going_right = False
@@ -30,17 +33,16 @@ class Vulture(Character):
             self.rect.x -= 2
             self.going_right = True
 
-        if self.rect.y < player_y:
-            self.rect.y += 2
-        elif self.rect.y > player_y:
-            self.rect.y -= 2
+        if abs(dx) <= 600:
+            if abs(dy) > 3:
+                if self.rect.y < player_y:
+                    self.rect.y += 2
+                elif self.rect.y > player_y:
+                    self.rect.y -= 2
 
-        dx = player_x - self.rect.x
-        dy = player_y - self.rect.y
+                angle = math.atan2(dy, dx) if not self.going_right else math.atan2(dy, dx) + 160
 
-        angle = math.atan2(dy, dx) if not self.going_right else math.atan2(dy, dx) + 160
-
-        self.image = transform.rotate(self.image, math.degrees(-angle))
+                self.image = transform.rotate(self.image, math.degrees(-angle))
 
     def animate_movement(self):
         self.image, self.walk_index = self.animation(self.going_right, self.walk_images, self.walk_index)

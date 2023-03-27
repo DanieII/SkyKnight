@@ -11,6 +11,7 @@ pygame.init()
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
 score = 0
+health = 3
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("SkyKnight")
 clock = pygame.time.Clock()
@@ -27,7 +28,7 @@ def get_images_from_folder(folder):
 
 # characters images
 knight_idle = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "idle"))
-knight_walk = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "walk"))
+knight_walk = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "run"))
 knight_attack = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "attack"))
 knight_hurt = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "hurt"))
 knight_death = get_images_from_folder(os.path.join(os.path.join("graphics", "KnightActions"), "dead"))
@@ -36,6 +37,8 @@ knight_jump = pygame.image.load(os.path.join(os.path.join("graphics", "KnightAct
 vulture_idle = [pygame.image.load(os.path.join(os.path.join("graphics", "vulture"), "Vulture.png")).convert_alpha()]
 vulture_death = [
     pygame.image.load(os.path.join(os.path.join("graphics", "vulture"), "Vulture_death.png")).convert_alpha()]
+vulture_death = [
+    pygame.transform.scale(vulture_death[0], (vulture_death[0].get_width() * 1.2, vulture_death[0].get_height() * 1.2))]
 vulture_move = [pygame.transform.smoothscale(x, (int(x.get_width() * 1.2), (x.get_height() * 1.2))) for x in
                 get_images_from_folder(os.path.join(os.path.join("graphics", "vulture"), "move"))]
 vulture_attack = get_images_from_folder(os.path.join(os.path.join("graphics", "vulture"), "attack"))
@@ -69,6 +72,16 @@ enemies = pygame.sprite.Group()
 spawn_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(spawn_timer, 3000)
 
+BAR_WIDTH = 120
+
+
+def calculate_health_width(health):
+    return health / 3 * BAR_WIDTH
+
+
+health_border = pygame.Rect(15, 20, BAR_WIDTH, 10)
+health_bar = pygame.Rect(14.95, 21.95, BAR_WIDTH, 8)
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -76,9 +89,13 @@ while True:
             exit()
 
         if event.type == spawn_timer:
-            x, y = choice((-20, SCREEN_WIDTH + 20)), randint(0, SCREEN_HEIGHT // 2)
+            x, y = choice((-20, SCREEN_WIDTH + 20)), randint(10, SCREEN_HEIGHT // 2)
             vulture = Vulture(x, y, vulture_idle, vulture_move, vulture_attack, vulture_death, knight)
             enemies.add(vulture)
+
+    health_bar.width = calculate_health_width(health)
+    # TODO: ADD health logic
+    health -= 0.01
 
     text_surface = font.render(f"Score: {score}", False, "Black")
     screen.blit(city_surface, (0, 0))
@@ -87,6 +104,9 @@ while True:
     screen.blit(cloud_1, cloud_1_rect)
     screen.blit(cloud_2, cloud_2_rect)
     screen.blit(cloud_1, cloud_3_rect)
+
+    pygame.draw.rect(screen, (0, 0, 0), health_border, 1)
+    pygame.draw.rect(screen, (255, 0, 0), health_bar)
 
     player.draw(screen)
     player.update()
