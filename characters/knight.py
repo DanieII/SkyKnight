@@ -15,12 +15,14 @@ class Knight(Character):
         self.hurt_images = hurt
         self.clouds = clouds
         self.gravity = 0
+        self.attack_timer = 0
+        self.health = 3
+        self.dead = False
         self.colliding = False
         self.going_right = True
         self.moved = False
         self.attacking = False
         self.damaged = False
-        self.attack_timer = 0
 
     @classmethod
     def create_knight(cls, cloud_coordinates: Rect, idle, walk, attack, hurt, death, jump: pygame.image, clouds: list):
@@ -30,6 +32,17 @@ class Knight(Character):
     @property
     def coordinates(self):
         return self.rect.x, self.rect.y
+
+    @property
+    def health(self):
+        return self.__health
+
+    @health.setter
+    def health(self, value):
+        if 0 <= value <= 3:
+            self.__health = value
+        else:
+            self.__health = 3
 
     def movement(self):
         keys = key.get_pressed()
@@ -95,6 +108,7 @@ class Knight(Character):
                 self.hurt()
                 return
             self.damaged = False
+            self.health -= 1
         self.movement()
         self.attack()
         if not self.moved and not self.attacking and self.colliding:

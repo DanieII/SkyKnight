@@ -76,11 +76,8 @@ BAR_WIDTH = 120
 
 
 def calculate_health_width(health):
-    return health / 3 * BAR_WIDTH
+    return health / 3 * BAR_WIDTH - 1.95
 
-
-health_border = pygame.Rect(15, 20, BAR_WIDTH, 10)
-health_bar = pygame.Rect(14.95, 21.95, BAR_WIDTH, 8)
 
 while True:
     for event in pygame.event.get():
@@ -89,13 +86,15 @@ while True:
             exit()
 
         if event.type == spawn_timer:
-            x, y = choice((-20, SCREEN_WIDTH + 20)), randint(10, SCREEN_HEIGHT // 2)
+            x, y = choice((-20, SCREEN_WIDTH + 20)), randint(30, SCREEN_HEIGHT // 2)
             vulture = Vulture(x, y, vulture_idle, vulture_move, vulture_attack, vulture_death, knight)
             enemies.add(vulture)
 
-    health_bar.width = calculate_health_width(health)
-    # TODO: ADD health logic
-    health -= 0.01
+    health = knight.health
+    health_border = pygame.Rect(knight.rect.x - knight.rect.width / 2 - 8, knight.rect.top - 20, BAR_WIDTH,
+                                10)
+    health_bar = pygame.Rect(knight.rect.x - knight.rect.width / 2 - 6.15, knight.rect.top - 18.15,
+                             calculate_health_width(health), 8)
 
     text_surface = font.render(f"Score: {score}", False, "Black")
     screen.blit(city_surface, (0, 0))
@@ -106,7 +105,7 @@ while True:
     screen.blit(cloud_1, cloud_3_rect)
 
     pygame.draw.rect(screen, (0, 0, 0), health_border, 1)
-    pygame.draw.rect(screen, (255, 0, 0), health_bar)
+    pygame.draw.rect(screen, (255 - abs(health - 3) * 30, 0, 0), health_bar)
 
     player.draw(screen)
     player.update()
