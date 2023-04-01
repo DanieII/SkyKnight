@@ -8,7 +8,7 @@ class Knight(Character):
     GRAVITY_VELOCITY = 1
     MOVEMENT_VELOCITY = 4
 
-    def __init__(self, x, y, idle, walk, attack, hurt, death, jump, clouds: list):
+    def __init__(self, x, y, idle, walk, attack, hurt, death, jump, clouds: list, screen_height):
         super().__init__(x, y, idle, walk, attack, death)
         self.rect: Rect = self.image.get_rect(midbottom=(x, y)).inflate(0, -4)
         self.jump_image = jump
@@ -17,17 +17,18 @@ class Knight(Character):
         self.gravity = 0
         self.attack_timer = 0
         self.health = 3
-        self.dead = False
         self.colliding = False
         self.going_right = True
         self.moved = False
         self.attacking = False
         self.damaged = False
+        self.screen_height = screen_height
 
     @classmethod
-    def create_knight(cls, cloud_coordinates: Rect, idle, walk, attack, hurt, death, jump: pygame.image, clouds: list):
+    def create_knight(cls, cloud_coordinates: Rect, idle, walk, attack, hurt, death, jump: pygame.image, clouds: list,
+                      screen_height):
         x, y = cloud_coordinates.x + cloud_coordinates.width // 2, cloud_coordinates.top
-        return cls(x, y, idle, walk, attack, hurt, death, jump, clouds)
+        return cls(x, y, idle, walk, attack, hurt, death, jump, clouds, screen_height)
 
     @property
     def coordinates(self):
@@ -101,6 +102,10 @@ class Knight(Character):
         self.image, self.hurt_index = self.animation(self.going_right, self.hurt_images, self.hurt_index)
         self.damaged = True
 
+    def check_for_player_out_of_game_range(self):
+        if self.rect.y - 1000 >= self.screen_height:
+            self.health = 0
+
     def update(self):
         self.apply_gravity()
         if self.damaged:
@@ -110,6 +115,7 @@ class Knight(Character):
             self.damaged = False
             self.health -= 1
         self.movement()
+        self.check_for_player_out_of_game_range()
         self.attack()
         if not self.moved and not self.attacking and self.colliding:
             self.image, self.idle_index = self.animation(self.going_right, self.idle_images, self.idle_index, 0.03)

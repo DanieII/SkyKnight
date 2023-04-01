@@ -20,6 +20,10 @@ class Vulture(Character):
     def get_score(self):
         return Vulture.__score
 
+    @classmethod
+    def reset_score(cls):
+        cls.__score = 0
+
     def move(self):
         player_x, player_y = self.knight.coordinates
 
